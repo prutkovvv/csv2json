@@ -37,9 +37,9 @@ This application should accept following command line arguments using process.ar
 
 An example of running the app with command line arguments:
 
-    - npm start csv2json.js --sourceFile "D:\source.csv" --resultFile "D:\result.json" --separator ","
-    - npm start csv2json.js --sourceFile "D:\source.csv" --resultFile "D:\result.json" --separator " "
-    - npm start csv2json.js --sourceFile "D:\source.csv" --resultFile "D:\result.json"
+    - node index.js csv2json.js --sourceFile "./assets/test.csv" --resultFile "./assets/test.json" --separator ","
+    - node index.js csv2json.js --sourceFile "./assets/test.csv" --resultFile "./assets/test.json" --separator " "
+    - node index.js csv2json.js --sourceFile "./assets/test.csv" --resultFile "./assets/test.json"
 
 ### Testing
 

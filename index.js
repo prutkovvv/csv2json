@@ -1,45 +1,38 @@
 const fs = require("fs");
 
+const { csv2json } = require("./csv2json/csv2jsonTransform");
+const { json2csv } = require("./json2csv/json2csvStream");
+const { generateBigFile } = require("./helpers/generateBigFile");
+
 function getArgs() {
-  const args = {};
-  process.argv
-    .slice(2, process.argv.length)
-    .forEach((arg, index, arguments) => {
+  return process.argv.slice(2, process.argv.length).reduce(
+    (acc, arg, index, arguments) => {
       if (arg.slice(0, 2) === "--") {
-        args[arg.slice(2)] = arguments[index + 1];
+        return { ...acc, [arg.slice(2)]: arguments[index + 1] };
       }
-    });
-  return args;
-}
-const args = getArgs();
-
-const jsonArr = [];
-if (args.sourceFile && args.resultFile) {
-  fs.readFile(args.sourceFile, { encoding: "utf-8" }, (err, data) => {
-    if (err) {
-      console.log(`Err while reading data ${err}`);
+      return acc;
+    },
+    {
+      startScript:
+        process.argv[2].slice(0, 2) === "--" ? "csv2json.js" : process.argv[2],
     }
-    const dataRows = data.split("\r");
-    const fields = dataRows[0].split(",");
-    console.log({ fields });
+  );
+}
 
-    dataRows.slice(1).forEach((dataRow) => {
-      const itemsArr = dataRow.split(",");
-      const rowObj = fields.reduce((acc, field, index) => {
-        return { ...acc, [field]: itemsArr[index] };
-      }, {});
-      jsonArr.push(rowObj);
-    });
+const startScriptConf = {
+  "csv2json.js": csv2json,
+  "json2csv.js": json2csv,
+};
 
-    fs.writeFile(
-      args.resultFile,
-      JSON.stringify(jsonArr, null, "  "),
-      (err) => {
-        if (err) {
-          console.log(`Err while writing data ${err}`);
-        }
-        console.log("Ready");
-      }
-    );
-  });
+const { sourceFile, resultFile, separator, startScript } = getArgs();
+
+console.log({ sourceFile, resultFile, separator, startScript });
+try {
+  startScriptConf[startScript]
+    ? startScriptConf[startScript](sourceFile, resultFile, separator)
+    : console.error(
+        "No such file to start script: please try csv2json.js or json2csv.js"
+      );
+} catch (e) {
+  console.error(`Error: ${e.message}`);
 }
