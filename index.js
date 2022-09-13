@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 const { csv2json } = require("./csv2json/csv2jsonTransform");
-const { json2csv } = require("./json2csv/json2csvStream");
+const { json2csv } = require("./json2csv/json2csvTransform");
 const { generateBigFile } = require("./helpers/generateBigFile");
 
 function getArgs() {

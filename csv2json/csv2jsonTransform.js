@@ -11,11 +11,21 @@ const csv2jsonTransform = (sourceFile, resultFile, separator = ",") => {
     let firstChunk = true;
     let fields = [];
     let temp;
+
+    const processDataRow = (dataRow) => {
+      const itemsArr = dataRow.split(separator);
+      const rowObj = fields.reduce((acc, field, index) => {
+        return { ...acc, [field]: itemsArr[index] };
+      }, {});
+      return rowObj;
+    };
+
     return new Transform({
       construct(callback) {
         this.push("[");
         callback();
       },
+
       transform(chunk, enc, cb) {
         const dataRows = chunk.toString().split("\r\n");
         if (firstChunk) {
@@ -25,21 +35,16 @@ const csv2jsonTransform = (sourceFile, resultFile, separator = ",") => {
         if (temp && !firstChunk) {
           temp += dataRows[0];
         }
+        const gluedItems = temp
+          ? [temp, ...dataRows.slice(1, dataRows.length - 1)]
+          : dataRows.slice(1, dataRows.length - 1);
 
-        const dataArr = dataRows
-          .slice(1, dataRows.length - 1)
-          .map((dataRow) => {
-            const itemsArr = dataRow.split(separator);
-            const rowObj = fields.reduce((acc, field, index) => {
-              return { ...acc, [field]: itemsArr[index] };
-            }, {});
-            return rowObj;
-          });
+        const dataArr = gluedItems.map(processDataRow);
 
-        temp = dataRows.slice(dataRows.length - 1);
+        temp = dataRows[dataRows.length - 1];
 
         this.push(
-          `${firstChunk ? "" : ","}${JSON.stringify(dataArr, null, 2).replace(
+          `${firstChunk ? "" : ","}${JSON.stringify(dataArr).replace(
             /]|[[]/g,
             ""
           )}`
@@ -49,7 +54,7 @@ const csv2jsonTransform = (sourceFile, resultFile, separator = ",") => {
       },
 
       flush(callback) {
-        this.push("]");
+        this.push(`,${JSON.stringify(processDataRow(temp))}]`);
         callback();
       },
     });
