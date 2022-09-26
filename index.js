@@ -1,8 +1,6 @@
-const fs = require("fs");
-
 const { csv2json } = require("./csv2json/csv2jsonTransform");
 const { json2csv } = require("./json2csv/json2csvTransform");
-const { generateBigFile } = require("./helpers/generateBigFile");
+const { parseInstructions } = require("./helpers/parseIntructions");
 
 function getArgs() {
   return process.argv.slice(2, process.argv.length).reduce(
@@ -24,15 +22,18 @@ const startScriptConf = {
   "json2csv.js": json2csv,
 };
 
-const { sourceFile, resultFile, separator, startScript } = getArgs();
+const { sourceFile, resultFile, separator, startScript, path } = getArgs();
 
-console.log({ sourceFile, resultFile, separator, startScript });
 try {
-  startScriptConf[startScript]
-    ? startScriptConf[startScript](sourceFile, resultFile, separator)
-    : console.error(
-        "No such file to start script: please try csv2json.js or json2csv.js"
-      );
+  if (!path) {
+    startScriptConf[startScript]
+      ? startScriptConf[startScript](sourceFile, resultFile, separator)
+      : console.error(
+          "No such file to start script: please try csv2json.js or json2csv.js"
+        );
+  } else {
+    parseInstructions(path);
+  }
 } catch (e) {
   console.error(`Error: ${e.message}`);
 }

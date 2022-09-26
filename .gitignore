@@ -1,3 +1,4 @@
 assets/*
 !/assets/test.csv
 !/assets/test.json
+!/assets/instructions_example.txt
