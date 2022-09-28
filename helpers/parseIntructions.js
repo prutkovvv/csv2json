@@ -1,21 +1,26 @@
 const fs = require("fs");
+const readLine = require("readline");
+const { fork } = require("child_process");
+const path = require("path");
 
-const { exec, execSync } = require("child_process");
+const processInstructions = (filePath) => {
+  const readFileStream = fs.createReadStream(filePath);
+  const rl = readLine.createInterface({ input: readFileStream });
 
-const parseInstructions = (path) => {
-  fs.readFile(path, "utf-8", (err, data) => {
-    if (err) throw err;
-    if (data) {
-      const instructions = data.split("\r\n");
-      instructions.forEach((instr) => {
-        console.log(`${instr} -------------- started`);
-        execSync(instr);
-        console.log(`${instr} -------------- finished`);
+  rl.on("line", (input) => {
+    const fileName = input.split(" ")[0];
+    if (fileName) {
+      const proc = fork(
+        `${path.join(__dirname, "..", fileName.split(".")[0])}/${fileName}`
+      );
+      proc.on("message", (response) => {
+        console.log(response);
       });
+      proc.send(input);
     }
   });
 };
 
 module.exports = {
-  parseInstructions,
+  processInstructions,
 };

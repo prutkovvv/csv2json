@@ -1,2 +1,2 @@
-node index.js csv2json.js --sourceFile "./assets/test.csv" --resultFile "./assets/test.json" --separator ","
-node index.js json2csv.js --sourceFile "./assets/test.json" --resultFile "./assets/test_converted.csv"
+csv2json.js --sourceFile "./assets/test.csv" --resultFile "./assets/test_converted.json" --separator ","
+json2csv.js --sourceFile "./assets/test.json" --resultFile "./assets/test_converted.csv"
